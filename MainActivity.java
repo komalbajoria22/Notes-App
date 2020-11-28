@@ -1,239 +1,131 @@
-package com.komal.calculator;
+package com.example.notes;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import static android.system.Os.remove;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    Button add,sub,multi,div;
-    Button one,two,three,four,five,six,seven,eight,nine,zero,doublezero,dot,clear,equals;
-    EditText textView;
+    ListView listview;
+    static ArrayList<String> arrayList= new ArrayList<String>();
+  static ArrayAdapter arrayAdapter;
 
-    float value1,value2;
 
-    boolean addbtn,subbtn,multibtn,divbtn;
-    boolean click;
+  //creating option of ADD NOTE in menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.add_note, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        super.onOptionsItemSelected(item);
+
+        if(item.getItemId() == R.id.add_notes)
+        {
+            Intent intent = new Intent(getApplicationContext(), writenotes.class);
+            startActivity(intent);
+return true;
+        }
+
+        return false;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView = (EditText) findViewById(R.id.textview);
 
 
+    listview=(ListView)findViewById(R.id.listview);
 
-        one = (Button) findViewById(R.id.one);
-        two = (Button) findViewById(R.id.two);
-        three = (Button) findViewById(R.id.three);
-        four = (Button) findViewById(R.id.four);
-        five = (Button) findViewById(R.id.five);
-        six = (Button) findViewById(R.id.six);
-        seven = (Button) findViewById(R.id.seven);
-        eight = (Button) findViewById(R.id.eight);
-        nine = (Button) findViewById(R.id.nine);
-        zero = (Button) findViewById(R.id.zero);
-        doublezero = (Button) findViewById(R.id.doublezero);
-        add = (Button) findViewById(R.id.add);
-        sub = (Button) findViewById(R.id.sub);
-        multi = (Button) findViewById(R.id.multi);
-        div = (Button) findViewById(R.id.div);
-        clear = (Button) findViewById(R.id.clear);
-        equals = (Button) findViewById(R.id.equals);
-        dot = (Button) findViewById(R.id.dot);
+        arrayAdapter= new ArrayAdapter(this, android.R.layout.simple_list_item_1,arrayList);
+        listview.setAdapter(arrayAdapter);
 
 
-        one.setOnClickListener(new View.OnClickListener() {
+        SharedPreferences sharedPreferences=this.getSharedPreferences("com.example.notes", Context.MODE_PRIVATE);
+        HashSet<String> hashSet=(HashSet<String>)sharedPreferences.getStringSet("arrayList",null);
+
+        if(hashSet==null){
+            arrayList.add("Example note");
+        }
+        else{
+            arrayList=new ArrayList<>(hashSet);
+        }
+
+
+      //editing existing note
+      listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+          @Override
+          public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+              Intent intent= new Intent(getApplicationContext(),writenotes.class);
+              intent.putExtra("noteID",position);
+              startActivity(intent);
+          }
+      });
+
+        // appearing alert dialog box for deleting a note
+        listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view,final int position, long id) {
 
-                textView.setText(textView.getText() + "1");
 
+
+                new AlertDialog.Builder(MainActivity.this)
+
+                        .setTitle("Are you sure?")
+                        .setMessage("Do you want to delete it?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                arrayList.remove(position);
+                                arrayAdapter.notifyDataSetChanged();
+
+                                SharedPreferences sharedPreferences=getApplicationContext().getSharedPreferences("com.example.notes",Context.MODE_PRIVATE);
+                                HashSet<String> hashSet= new HashSet(MainActivity.arrayList);
+                                sharedPreferences.edit().putStringSet("arrayList",hashSet).apply();
+                            }
+                        })
+                        .setNegativeButton("Cancel",null)
+                        .show();
+
+                return false;
             }
         });
 
-        two.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(textView.getText() + "2");
-            }
-        });
-
-        three.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                textView.setText(textView.getText() + "3");
-
-            }
-        });
-
-        four.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(textView.getText() + "4");
-            }
-        });
-
-
-        five.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                textView.setText(textView.getText() + "5");
-
-            }
-        });
-
-        six.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(textView.getText() + "6");
-            }
-        });
-
-        seven.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                textView.setText(textView.getText() + "7");
-
-            }
-        });
-
-        eight.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(textView.getText() + "8");
-            }
-        });
-
-        nine.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                textView.setText(textView.getText() + "9");
-
-            }
-        });
-
-        zero.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(textView.getText() + "0");
-            }
-        });
-
-        doublezero.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                textView.setText(textView.getText() + "00");
-
-            }
-        });
-
-        dot.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText(textView.getText() + ".");
-            }
-        });
-
-
-        clear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textView.setText("");
-            }
-        });
-
-
-        add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                click=true;
-                if (textView == null) {
-                    textView.setText("");
-                } else {
-                    float value1=Float.parseFloat(textView.getText()+"");
-                    addbtn = true;
-                    textView.setText(null);
-
-                }
-            }
-        });
-
-
-        sub.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                float value1=Float.parseFloat(textView.getText()+"");
-                subbtn = true;
-                textView.setText(null);
-
-            }
-        });
-
-
-        div.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                float value1=Float.parseFloat(textView.getText()+"");
-                divbtn = true;
-                textView.setText(null);
-
-            }
-        });
-
-
-        multi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-             value1=Float.parseFloat(textView.getText()+"");
-                multibtn=true;
-                textView.setText(null);
-
-            }
-        });
-
-
-
-        equals.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               value2=Float.parseFloat(textView.getText()+"");
-
-                  if(addbtn==true){
-                      textView.setText(String.valueOf(value1+value2));
-                      addbtn=false;
-                  }
-
-                if(subbtn==true){
-                    textView.setText(String.valueOf(value1-value2));
-                 subbtn=false;
-                }
-
-                if(divbtn==true){
-                    textView.setText(String.valueOf(value1/value2));
-                       divbtn=false;
-                }
-
-                if(multibtn==true){
-                    textView.setText(String.valueOf(value1*value2));
-                    multibtn=false;
-                }
-
-
-            }
-        });
 
 
 
     }
+
+
 }
